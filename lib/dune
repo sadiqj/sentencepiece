@@ -1,0 +1,24 @@
+(library
+ (name sentencepiece)
+ (foreign_stubs (language cxx) (names bindings) (include_dirs include))
+ (foreign_archives sentencepiece))
+
+(data_only_dirs libsentencepiece)
+
+(rule
+ (deps
+  (source_tree libsentencepiece))
+ (targets libsentencepiece.a dllsentencepiece.so sentencepiece_processor.h test_model.model)
+ (action
+  (no-infer
+   (progn
+    (bash "mkdir -p libsentencepiece/build")
+    (chdir
+     libsentencepiece/build
+     (progn (run cmake ..)
+      (run make -j)))
+      (copy libsentencepiece/build/src/libsentencepiece.a libsentencepiece.a)
+      (copy libsentencepiece/build/src/libsentencepiece.so dllsentencepiece.so)
+      (copy libsentencepiece/src/sentencepiece_processor.h sentencepiece_processor.h)
+      (copy libsentencepiece/python/test/test_model.model test_model.model)
+      ))))
